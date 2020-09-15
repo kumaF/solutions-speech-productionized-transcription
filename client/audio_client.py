@@ -51,11 +51,14 @@ def stream_file(filename):
     """Streams the supplied WAV file via socketio, continuously replaying."""
     filename = mp3_to_wav(filename)
     fr, ch = frame_rate_channel(filename)
+
+    print(f'Channels: {ch}')
+
     if ch > 1:
         stereo_to_mono(filename)
-        
+
     wf = wave.open(filename, 'rb')
-    
+
     # read in ~100ms chunks
     chunk = int(wf.getframerate() / 10)
     data = wf.readframes(chunk)
@@ -81,12 +84,15 @@ def stream_file(filename):
         except KeyboardInterrupt:
             return
 
+
 def mp3_to_wav(audio_file_name):
-    if audio_file_name.split('.')[1] == 'mp3':    
+    if audio_file_name.split('.')[1] == 'mp3':
         sound = AudioSegment.from_mp3(audio_file_name)
         audio_file_name = audio_file_name.split('.')[0] + '.wav'
         sound.export(audio_file_name, format='wav')
         return audio_file_name
+    return audio_file_name
+
 
 def stereo_to_mono(audio_file_name):
     sound = AudioSegment.from_wav(audio_file_name)
@@ -95,10 +101,11 @@ def stereo_to_mono(audio_file_name):
 
 
 def frame_rate_channel(audio_file_name):
-    with wave.open(audio_file_name, "rb") as wave_file:
-        frame_rate = wave_file.getframerate()
-        channels = wave_file.getnchannels()
-        return frame_rate,channels
+    wave_file = wave.open(audio_file_name, "rb")
+    frame_rate = wave_file.getframerate()
+    channels = wave_file.getnchannels()
+    return frame_rate, channels
+
 
 if __name__ == '__main__':
     try:
